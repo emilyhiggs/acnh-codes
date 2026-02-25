@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACNH Creator Code Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8e6cf 0%, #dcedc8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2d5016;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .setup-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .setup-section h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .setup-section ol {
+            margin-left: 20px;
+            color: #856404;
+        }
+
+        .setup-section li {
+            margin-bottom: 8px;
+        }
+
+        .setup-section code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .auth-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-auth {
+            padding: 12px 30px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-auth:hover {
+            background: #357abd;
+        }
+
+        .btn-signout {
+            padding: 8px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .category {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .category h2 {
+            color: #2d5016;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #a8e6cf;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .add-form input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .add-form button {
+            padding: 10px 20px;
+            background: #66bb6a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .add-form button:hover {
+            background: #4caf50;
+        }
+
+        .add-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-tab:hover {
+            background: #d0d0d0;
+        }
+
+        .filter-tab.active {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .code-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .code-item {
+            background: white;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .code-item.favorite {
+            border-color: #ffd700;
+            background: #fffef0;
+        }
+
+        .code-item.added {
+            opacity: 0.7;
+        }
+
+        .code-item.queue {
+            border-left: 4px solid #ff9800;
+        }
+
+        .code-text {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #2d5016;
+            font-size: 15px;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-favorite,
+        .btn-status,
+        .btn-delete {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .btn-favorite:hover,
+        .btn-status:hover,
+        .btn-delete:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-favorite {
+            background: transparent;
+        }
+
+        .btn-status {
+            background: #e3f2fd;
+        }
+
+        .btn-status.added {
+            background: #c8e6c9;
+        }
+
+        .btn-delete {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .icon {
+            font-size: 1.3em;
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            color: #2d5016;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍃 ACNH Creator Code Tracker 🍃</h1>
+
+        <div id="setupInstructions" class="setup-section">
+            <h3>📋 Setup Instructions</h3>
+            <ol>
+                <li>Click "Sign in with Google" below</li>
+                <li>Allow access to Google Sheets</li>
+                <li>A new spreadsheet called "ACNH Creator Codes" will be created automatically in your Google Drive</li>
+                <li>Start adding your creator codes!</li>
+            </ol>
+            <p style="margin-top: 15px; font-size: 0.9em; color: #856404;">
+                <strong>Note:</strong> You can access this tracker from any device by signing in with the same Google account.
+            </p>
+        </div>
+
+        <div class="auth-section">
+            <button id="authorizeButton" class="btn-auth">Sign in with Google</button>
+            <button id="signoutButton" class="btn-auth btn-signout hidden">Sign Out</button>
+        </div>
+
+        <div id="status" class="status disconnected">Not connected to Google Sheets</div>
+
+        <div id="mainContent" class="hidden">
+            <div class="stats">
+                <strong>Total Codes:</strong> <span id="totalCodes">0</span> | 
+                <strong>Favorites:</strong> <span id="totalFavorites">0</span> |
+                <strong>Added:</strong> <span id="totalAdded">0</span> |
+                <strong>Queue:</strong> <span id="totalQueue">0</span>
+            </div>
+
+            <div class="categories">
+                <div class="category">
+                    <h2><span class="icon">🛤️</span> Paths</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="setFilter('paths', 'all')">All</button>
+                        <button class="filter-tab" onclick="setFilter('paths', 'queue')">Queue</button>
+                        <button class="filter-tab" onclick="setFilter('paths', 'added')">Added</button>
+                        <button class="filter-tab" onclick="setFilter('paths', 'favorites')">⭐</button>
+                    </div>
+                    <div class="add-form">
+                        <input type="text" id="pathsInput" placeholder="MA-XXXX-XXXX-XXXX" maxlength="17">
+                        <button onclick="addCode('paths')" id="pathsAddBtn">Add</button>
+                    </div>
+                    <ul class="code-list" id="pathsList"></ul>
+                </div>
+
+                <div class="category">
+                    <h2><span class="icon">👗</span> Clothing</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="setFilter('clothing', 'all')">All</button>
+                        <button class="filter-tab" onclick="setFilter('clothing', 'queue')">Queue</button>
+                        <button class="filter-tab" onclick="setFilter('clothing', 'added')">Added</button>
+                        <button class="filter-tab" onclick="setFilter('clothing', 'favorites')">⭐</button>
+                    </div>
+                    <div class="add-form">
+                        <input type="text" id="clothingInput" placeholder="MA-XXXX-XXXX-XXXX" maxlength="17">
+                        <button onclick="addCode('clothing')" id="clothingAddBtn">Add</button>
+                    </div>
+                    <ul class="code-list" id="clothingList"></ul>
+                </div>
+
+                <div class="category">
+                    <h2><span class="icon">🎨</span> Decor</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="setFilter('decor', 'all')">All</button>
+                        <button class="filter-tab" onclick="setFilter('decor', 'queue')">Queue</button>
+                        <button class="filter-tab" onclick="setFilter('decor', 'added')">Added</button>
+                        <button class="filter-tab" onclick="setFilter('decor', 'favorites')">⭐</button>
+                    </div>
+                    <div class="add-form">
+                        <input type="text" id="decorInput" placeholder="MA-XXXX-XXXX-XXXX" maxlength="17">
+                        <button onclick="addCode('decor')" id="decorAddBtn">Add</button>
+                    </div>
+                    <ul class="code-list" id="decorList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script>
+        // Google API configuration - REPLACED BY GITHUB ACTIONS
+        const CLIENT_ID = '__CLIENT_ID__';
+        const API_KEY = '__API_KEY__';
+        const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+        let spreadsheetId = null;
+
+        console.log('Script loaded');
+
+        // Data structure
+        let data = {
+            paths: [],
+            clothing: [],
+            decor: []
+        };
+
+        // Filter state
+        let filters = {
+            paths: 'all',
+            clothing: 'all',
+            decor: 'all'
+        };
+
+        // Initialize Google API
+        function gapiLoaded() {
+            console.log('gapi loaded');
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            console.log('Initializing gapi client');
+            try {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: [DISCOVERY_DOC],
+                });
+                gapiInited = true;
+                console.log('gapi initialized');
+                maybeEnableButtons();
+            } catch (error) {
+                console.error('Error initializing gapi:', error);
+                updateStatus('Error initializing Google API: ' + error.message, 'disconnected');
+            }
+        }
+
+        function gisLoaded() {
+            console.log('gis loaded');
+            try {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: '', // defined later
+                });
+                gisInited = true;
+                console.log('gis initialized');
+                maybeEnableButtons();
+            } catch (error) {
+                console.error('Error initializing gis:', error);
+                updateStatus('Error initializing Google Sign-In: ' + error.message, 'disconnected');
+            }
+        }
+
+        function maybeEnableButtons() {
+            console.log('Checking if buttons can be enabled:', gapiInited, gisInited);
+            if (gapiInited && gisInited) {
+                document.getElementById('authorizeButton').style.display = 'inline-block';
+                document.getElementById('authorizeButton').disabled = false;
+                console.log('Buttons enabled');
+                // Check if already has valid token
+                if (gapi.client.getToken() !== null) {
+                    handleAuthSuccess();
+                }
+            }
+        }
+
+        function handleAuthClick() {
+            console.log('Auth button clicked');
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    console.error('Auth error:', resp);
+                    updateStatus('Authentication error: ' + resp.error, 'disconnected');
+                    throw (resp);
+                }
+                console.log('Auth successful');
+                await handleAuthSuccess();
+            };
+
+            if (gapi.client.getToken() === null) {
+                console.log('Requesting new token');
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                console.log('Requesting token with existing session');
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        }
+
+        async function handleAuthSuccess() {
+            document.getElementById('authorizeButton').classList.add('hidden');
+            document.getElementById('signoutButton').classList.remove('hidden');
+            document.getElementById('setupInstructions').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            
+            updateStatus('Connecting to Google Sheets...', 'loading');
+            
+            // Check if spreadsheet ID is stored
+            spreadsheetId = localStorage.getItem('acnhSpreadsheetId');
+            
+            if (!spreadsheetId) {
+                await createSpreadsheet();
+            } else {
+                // Verify spreadsheet exists
+                try {
+                    await gapi.client.sheets.spreadsheets.get({
+                        spreadsheetId: spreadsheetId
+                    });
+                } catch (error) {
+                    // Spreadsheet doesn't exist, create new one
+                    await createSpreadsheet();
+                }
+            }
+            
+            await loadDataFromSheet();
+            updateStatus('Connected to Google Sheets', 'connected');
+        }
+
+        function handleSignoutClick() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token);
+                gapi.client.setToken('');
+            }
+            document.getElementById('authorizeButton').classList.remove('hidden');
+            document.getElementById('signoutButton').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('setupInstructions').classList.remove('hidden');
+            updateStatus('Not connected to Google Sheets', 'disconnected');
+        }
+
+        async function createSpreadsheet() {
+            try {
+                const response = await gapi.client.sheets.spreadsheets.create({
+                    properties: {
+                        title: 'ACNH Creator Codes'
+                    },
+                    sheets: [
+                        {
+                            properties: {
+                                title: 'Codes',
+                                gridProperties: {
+                                    rowCount: 1000,
+                                    columnCount: 6
+                                }
+                            }
+                        }
+                    ]
+                });
+                
+                spreadsheetId = response.result.spreadsheetId;
+                localStorage.setItem('acnhSpreadsheetId', spreadsheetId);
+                
+                // Set up headers
+                await gapi.client.sheets.spreadsheets.values.update({
+                    spreadsheetId: spreadsheetId,
+                    range: 'Codes!A1:F1',
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: [['Code', 'Category', 'Favorite', 'Status', 'Date Added', 'ID']]
+                    }
+                });
+                
+                // Format headers
+                await gapi.client.sheets.spreadsheets.batchUpdate({
+                    spreadsheetId: spreadsheetId,
+                    resource: {
+                        requests: [{
+                            repeatCell: {
+                                range: {
+                                    sheetId: 0,
+                                    startRowIndex: 0,
+                                    endRowIndex: 1
+                                },
+                                cell: {
+                                    userEnteredFormat: {
+                                        backgroundColor: { red: 0.66, green: 0.73, blue: 0.42 },
+                                        textFormat: { bold: true },
+                                        horizontalAlignment: 'CENTER'
+                                    }
+                                },
+                                fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)'
+                            }
+                        }]
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error creating spreadsheet:', error);
+                updateStatus('Error creating spreadsheet', 'disconnected');
+            }
+        }
+
+        async function loadDataFromSheet() {
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: spreadsheetId,
+                    range: 'Codes!A2:F',
+                });
+                
+                const rows = response.result.values || [];
+                
+                data = {
+                    paths: [],
+                    clothing: [],
+                    decor: []
+                };
+                
+                rows.forEach(row => {
+                    if (row[0] && row[1]) {
+                        const item = {
+                            code: row[0],
+                            favorite: row[2] === 'TRUE',
+                            status: row[3] || 'queue',
+                            dateAdded: row[4] || new Date().toISOString(),
+                            id: row[5] || generateId()
+                        };
+                        
+                        const category = row[1].toLowerCase();
+                        if (data[category]) {
+                            data[category].push(item);
+                        }
+                    }
+                });
+                
+                renderAll();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function saveDataToSheet() {
+            const rows = [];
+            
+            ['paths', 'clothing', 'decor'].forEach(category => {
+                data[category].forEach(item => {
+                    rows.push([
+                        item.code,
+                        category.charAt(0).toUpperCase() + category.slice(1),
+                        item.favorite ? 'TRUE' : 'FALSE',
+                        item.status,
+                        item.dateAdded,
+                        item.id
+                    ]);
+                });
+            });
+            
+            try {
+                // Clear existing data
+                await gapi.client.sheets.spreadsheets.values.clear({
+                    spreadsheetId: spreadsheetId,
+                    range: 'Codes!A2:F',
+                });
+                
+                // Write new data
+                if (rows.length > 0) {
+                    await gapi.client.sheets.spreadsheets.values.update({
+                        spreadsheetId: spreadsheetId,
+                        range: 'Codes!A2:F',
+                        valueInputOption: 'RAW',
+                        resource: {
+                            values: rows
+                        }
+                    });
+                }
+                
+                updateStats();
+            } catch (error) {
+                console.error('Error saving data:', error);
+                updateStatus('Error saving to Google Sheets', 'disconnected');
+            }
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        async function addCode(category) {
+            const input = document.getElementById(category + 'Input');
+            let code = input.value.trim().toUpperCase();
+            
+            if (!code) return;
+            
+            if (!code.startsWith('MA-')) {
+                code = 'MA-' + code;
+            }
+            
+            if (!code.match(/^MA-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{4}$/)) {
+                alert('Please enter a valid creator code format: MA-XXXX-XXXX-XXXX');
+                return;
+            }
+            
+            // Check for duplicates across all categories
+            const allCodes = [...data.paths, ...data.clothing, ...data.decor];
+            if (allCodes.some(item => item.code === code)) {
+                alert('This code already exists in your collection!');
+                return;
+            }
+            
+            data[category].push({
+                code: code,
+                favorite: false,
+                status: 'queue',
+                dateAdded: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            input.value = '';
+            await saveDataToSheet();
+            renderCategory(category);
+        }
+
+        async function toggleFavorite(category, id) {
+            const item = data[category].find(i => i.id === id);
+            if (item) {
+                item.favorite = !item.favorite;
+                await saveDataToSheet();
+                renderCategory(category);
+            }
+        }
+
+        async function toggleStatus(category, id) {
+            const item = data[category].find(i => i.id === id);
+            if (item) {
+                item.status = item.status === 'queue' ? 'added' : 'queue';
+                await saveDataToSheet();
+                renderCategory(category);
+            }
+        }
+
+        async function deleteCode(category, id) {
+            if (confirm('Delete this creator code?')) {
+                data[category] = data[category].filter(i => i.id !== id);
+                await saveDataToSheet();
+                renderCategory(category);
+            }
+        }
+
+        function setFilter(category, filter) {
+            filters[category] = filter;
+            
+            // Update active tab
+            const tabs = document.querySelectorAll(`#${category}List`).item(0).parentElement.querySelectorAll('.filter-tab');
+            tabs.forEach((tab, index) => {
+                const filterValues = ['all', 'queue', 'added', 'favorites'];
+                if (filterValues[index] === filter) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            renderCategory(category);
+        }
+
+        function renderCategory(category) {
+            const list = document.getElementById(category + 'List');
+            const filter = filters[category];
+            
+            let filtered = [...data[category]];
+            
+            // Apply filter
+            if (filter === 'queue') {
+                filtered = filtered.filter(item => item.status === 'queue');
+            } else if (filter === 'added') {
+                filtered = filtered.filter(item => item.status === 'added');
+            } else if (filter === 'favorites') {
+                filtered = filtered.filter(item => item.favorite);
+            }
+            
+            if (filtered.length === 0) {
+                list.innerHTML = '<li class="empty-state">No codes in this view</li>';
+                return;
+            }
+            
+            // Sort: favorites first, then queue before added, then by date
+            filtered.sort((a, b) => {
+                if (a.favorite && !b.favorite) return -1;
+                if (!a.favorite && b.favorite) return 1;
+                if (a.status === 'queue' && b.status === 'added') return -1;
+                if (a.status === 'added' && b.status === 'queue') return 1;
+                return new Date(b.dateAdded) - new Date(a.dateAdded);
+            });
+            
+            list.innerHTML = filtered.map(item => {
+                const star = item.favorite ? '⭐' : '☆';
+                const statusIcon = item.status === 'added' ? '✓' : '⏳';
+                const statusClass = item.status === 'added' ? 'added' : '';
+                
+                return `
+                    <li class="code-item ${item.favorite ? 'favorite' : ''} ${item.status}">
+                        <span class="code-text">${item.code}</span>
+                        <div class="code-actions">
+                            <button class="btn-favorite" onclick="toggleFavorite('${category}', '${item.id}')" title="Toggle favorite">${star}</button>
+                            <button class="btn-status ${statusClass}" onclick="toggleStatus('${category}', '${item.id}')" title="Toggle added/queue">${statusIcon}</button>
+                            <button class="btn-delete" onclick="deleteCode('${category}', '${item.id}')" title="Delete">🗑️</button>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function renderAll() {
+            renderCategory('paths');
+            renderCategory('clothing');
+            renderCategory('decor');
+        }
+
+        function updateStats() {
+            const allCodes = [...data.paths, ...data.clothing, ...data.decor];
+            const total = allCodes.length;
+            const favorites = allCodes.filter(item => item.favorite).length;
+            const added = allCodes.filter(item => item.status === 'added').length;
+            const queue = allCodes.filter(item => item.status === 'queue').length;
+            
+            document.getElementById('totalCodes').textContent = total;
+            document.getElementById('totalFavorites').textContent = favorites;
+            document.getElementById('totalAdded').textContent = added;
+            document.getElementById('totalQueue').textContent = queue;
+        }
+
+        function updateStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('authorizeButton').addEventListener('click', handleAuthClick);
+            document.getElementById('signoutButton').addEventListener('click', handleSignoutClick);
+            
+            ['paths', 'clothing', 'decor'].forEach(category => {
+                const input = document.getElementById(category + 'Input');
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addCode(category);
+                    }
+                });
+            });
+        });
+
+        // Load Google APIs
+        window.gapiLoaded = gapiLoaded;
+        window.gisLoaded = gisLoaded;
+        
+        // Fallback to load gapi if not already loaded
+        if (typeof gapi === 'undefined') {
+            console.log('gapi not loaded yet, waiting...');
+        } else {
+            console.log('gapi already available');
+            gapiLoaded();
+        }
+    </script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>
